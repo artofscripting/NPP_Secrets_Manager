@@ -53,6 +53,7 @@ private :
     bool _isUnlocked = false;
     std::wstring _masterPassword;
     std::vector<BYTE> _passwordHash;
+    std::wstring _currentFilePath;
 
     static const UINT_PTR AUTOLOCK_TIMER_ID = 1;
     static const UINT AUTOLOCK_TIMEOUT_MS = 60 * 60 * 1000; // 60 minutes
@@ -65,12 +66,16 @@ private :
     bool encryptDataWithPassword(const std::wstring& plainText, const std::wstring& password, std::vector<BYTE>& encrypted);
     bool decryptDataWithPassword(const std::vector<BYTE>& encrypted, const std::wstring& password, std::wstring& plainText);
     bool deriveKeyFromPassword(const std::wstring& password, const std::vector<BYTE>& salt, std::vector<BYTE>& key);
+    bool loadSecretsForPassword(const std::wstring& password, std::vector<Secret>& outSecrets);
+    bool parseSecretsPayload(const std::string& payload, std::vector<Secret>& outSecrets) const;
+    std::string buildSecretsPayload() const;
     bool verifyPassword(const std::wstring& password);
-    void hashPassword(const std::wstring& password, std::vector<BYTE>& hash);
 
     void unlockSecrets();
     void lockSecrets();
     void changePassword();
+    void loadEpFile();
+    void newEpFile();
     void addSecret();
     void updateSecret();
     void deleteSecret();
@@ -79,6 +84,7 @@ private :
     void refreshSecretsList();
     void filterSecrets();
     void updateUIState();
+    void updateFileDisplay();
     bool promptForPassword(const wchar_t* title, const wchar_t* prompt, std::wstring& password, bool requireConfirm = false);
     static INT_PTR CALLBACK passwordDlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -88,7 +94,6 @@ private :
     void onAutoLockTimer();
 
     std::wstring getSecretsFilePath();
-    std::wstring getPasswordHashFilePath();
 };
 
 #endif //SECRETS_MANAGER_DLG_H
